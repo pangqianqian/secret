@@ -85,7 +85,6 @@ def querydb(db, feature):
 
     fs = feature.split(',')
     f1 = fs[0] + fs[1] + fs[2] + fs[3]
-    print f1
     f = fs[4].split(' ')
     f2 = f[0]
     f3 = f[1]
@@ -93,11 +92,14 @@ def querydb(db, feature):
     f4 = f[3]
     sql = "SELECT char_chi FROM num_fonts where feature1 = '%s' "
     try:
-    # 执行SQL语句
+        # 执行SQL语句
         cursor.execute(sql % f1)
         # 获取所有记录列表
         results = cursor.fetchall()
-        print results
+        if len(results) > 0:
+            return results[0][0]
+        else:
+            return 'X'
     except:
         print "Error: unable to fecth data"
 
@@ -110,8 +112,8 @@ def main():
     db = connectdb()  # 连接MySQL数据库
 
     # createtable(db)  # 创建表
-    # insertdb(db)  # 插入数据
-    querydb(db, '1 1 1 ,3 3 3 ,1 0 1 0 ,2 2 2 2 ,0.97265625 0.96484375 0.5 0.4375')
+    insertdb(db)  # 插入数据
+    # querydb(db, '1 1 1 ,3 3 3 ,1 0 1 0 ,2 2 2 2 ,0.97265625 0.96484375 0.5 0.4375')
     closedb(db)
 
 

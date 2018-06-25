@@ -5,9 +5,16 @@ import xlwt
 import pytesseract
 from PIL import Image
 import cv2
+from cal_feature import caculate
+from database import querydb
+from database import connectdb
+import numpy as np
 
 pic_dir = "./result"
 save_dir = './result.xls'
+
+# 建立数据库链接
+db = connectdb()
 
 
 def main():
@@ -26,30 +33,35 @@ def main():
     for subpicture in picture:  # 依次对每张照片进行处理
         str1 = os.path.join(pic_dir, subpicture)  # 文件名
         file = os.listdir(str1)  # file 为name或num
+
+        filename=subpicture.split('.')[0]
+        print filename
+
         for subfile in file:
             str2 = os.path.join(str1, subfile)
             cell = os.listdir(str2)  # 每个文字或数字单元
             num = len(cell)
-            l = []
             if subfile == 'name':  # 企业名称
+                continue
+                l=[]
                 col = 0  # 列
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 0)
                     pos = subcell.split('.')[0]
-                    l.insert(int(pos), word)
+                    l.append(word)
             else:  # 企业数字
+                l = np.zeros((1, num), dtype=np.string_)
                 col = 1  # 列
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 1)
                     pos = subcell.split('.')[0]
-                    l.insert(int(pos), word)
+                    l[0][int(pos) - 1] = word
             # 将字符串汇总
             words = ''
             for i in range(num):
-                words += l[i]
-            print words
+                words += str(l[0][i])
             # 写入excel
             sheet.write(row, col, words)
         row += 1
@@ -64,20 +76,28 @@ def map(im_path, flag):
     :param im:
     :return:
     # '''
-    if flag == 1:
-        return '1'
-    else:
-        im = cv2.imread(im_path)
-        if len(im[0]) != 64:
-            return '('
-        else:
-            img = Image.open(im_path)
-            data = pytesseract.image_to_string(img, lang='chi_sim')
-            return data
     # if flag == 1:
     #     return '1'
     # else:
-    #     return '阿'
+    #     im = cv2.imread(im_path)
+    #     if len(im[0]) != 64:
+    #         return '('
+    #     else:
+    #         img = Image.open(im_path)
+    #         data = pytesseract.image_to_string(img, lang='chi_sim')
+    #         return data
+    if flag == 1:
+        feature = caculate(im_path)
+        s = ''
+        for f in feature[:4]:
+            for item in f:
+                s += str(item) + " "
+            s += ","
+        for item in feature[4]:
+            s += str(item) + " "
+        return querydb(db, s)
+    else:
+        return '阿'
 
 
 if __name__ == '__main__':
