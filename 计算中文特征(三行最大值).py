@@ -115,9 +115,9 @@ def caculate_all(pathin):
         print cor_feature
 
         # 按格式写入文件
-        name, ext = os.path.splitext(pic_path)
-        name = os.path.basename(name)
-        write_to_txt(name, HA, VA, HA_H, VA_H, cor_feature)
+       # name, ext = os.path.splitext(pic_path)
+       # name = os.path.basename(name)
+       # write_to_txt(name, HA, VA, HA_H, VA_H, cor_feature)
 
 
 def caculate_line(line):
@@ -202,4 +202,4 @@ def write_to_txt(ch_name, HA, VA, HA_H, VA_H, cor_feature):
 
 
 if __name__ == '__main__':
-    caculate_all('./res_number')
+    caculate_all('./test')

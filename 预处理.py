@@ -4,10 +4,6 @@ import cv2
 import os
 
 
-# 对图片进行二值化、边框检测和大小归一化
-
-
-
 def bin_chinese(pathin, pathout):
     '''
     对图片进行二值化
@@ -142,10 +138,11 @@ def nor_chinese(pathin, pathout):
 
 if __name__ == '__main__':
     # 二值化
-    bin_chinese('./test', './test')
-    # # 边框检测
-    # bor_chinese('./bin_english', './bor_english')
-    # # 归一化
-    # nor_chinese('./bor_english', './nor_english')
-    # # 最后二值化
-    # bin_chinese('./nor_english', './res_english')
+    bin_chinese('./english', './bin_english')
+    # 边框检测
+    bor_chinese('./bin_english', './bor_english')
+    # 归一化
+    nor_chinese('./bor_english', './nor_english')
+    # 最后二值化
+    bin_chinese('./nor_english','./res_english')
+
