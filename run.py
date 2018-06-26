@@ -1,20 +1,23 @@
 # coding:utf8
+'''
+功能：进行识别
+'''
 
 import os
 import xlwt
 import pytesseract
 from PIL import Image
 import cv2
-from cal_feature import caculate
-from database import querydb
-from database import connectdb
-import numpy as np
+from Cal_fea import Calfea
+from Database import Database
 
 pic_dir = "./result"
 save_dir = './result.xls'
 
 # 建立数据库链接
-db = connectdb()
+database=Database()
+db = database.connectdb()
+calfea = Calfea()
 
 
 def main():
@@ -22,7 +25,7 @@ def main():
     读取图片文字并写入excel
     :return:
     '''
-
+    # 识别写入excel
     excel = xlwt.Workbook(encoding='utf-8')  # 创建一个Excel
     sheet = excel.add_sheet('Sheet1')  # 在其中创建一个名为hello的sheet
     sheet.write(0, 0, u'企业名称')  # 往sheet里第一行第一列写一个数据
@@ -34,39 +37,40 @@ def main():
         str1 = os.path.join(pic_dir, subpicture)  # 文件名
         file = os.listdir(str1)  # file 为name或num
 
-        filename=subpicture.split('.')[0]
-        print filename
+        # filename = subpicture.split('.')[0]
+        # print filename
 
         for subfile in file:
             str2 = os.path.join(str1, subfile)
             cell = os.listdir(str2)  # 每个文字或数字单元
             num = len(cell)
+            l = dict()
             if subfile == 'name':  # 企业名称
-                continue
-                l=[]
                 col = 0  # 列
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 0)
                     pos = subcell.split('.')[0]
-                    l.append(word)
+                    dic = {int(pos) - 1: word}
+                    l.update(dic)
             else:  # 企业数字
-                l = np.zeros((1, num), dtype=np.string_)
                 col = 1  # 列
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 1)
                     pos = subcell.split('.')[0]
-                    l[0][int(pos) - 1] = word
+                    dic = {int(pos) - 1: word}
+                    l.update(dic)
             # 将字符串汇总
             words = ''
             for i in range(num):
-                words += str(l[0][i])
+                words += l[i]
             # 写入excel
             sheet.write(row, col, words)
         row += 1
 
     excel.save(save_dir)
+    print '写入表格成功！'
 
 
 def map(im_path, flag):
@@ -86,8 +90,9 @@ def map(im_path, flag):
     #         img = Image.open(im_path)
     #         data = pytesseract.image_to_string(img, lang='chi_sim')
     #         return data
+
     if flag == 1:
-        feature = caculate(im_path)
+        feature = calfea.caculate(im_path)
         s = ''
         for f in feature[:4]:
             for item in f:
@@ -95,10 +100,11 @@ def map(im_path, flag):
             s += ","
         for item in feature[4]:
             s += str(item) + " "
-        return querydb(db, s)
+        return database.querydb(db, s)
     else:
         return '阿'
 
 
 if __name__ == '__main__':
     main()
+    database.closedb(db)
