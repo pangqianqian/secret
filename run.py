@@ -15,7 +15,7 @@ pic_dir = "./result"
 save_dir = './result.xls'
 
 # 建立数据库链接
-database=Database()
+database = Database()
 db = database.connectdb()
 calfea = Calfea()
 
@@ -50,6 +50,7 @@ def main():
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 0)
+                    print word
                     pos = subcell.split('.')[0]
                     dic = {int(pos) - 1: word}
                     l.update(dic)
@@ -58,6 +59,7 @@ def main():
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 1)
+                    print word
                     pos = subcell.split('.')[0]
                     dic = {int(pos) - 1: word}
                     l.update(dic)
@@ -90,8 +92,7 @@ def map(im_path, flag):
     #         img = Image.open(im_path)
     #         data = pytesseract.image_to_string(img, lang='chi_sim')
     #         return data
-
-    if flag == 1:
+    try:
         feature = calfea.caculate(im_path)
         s = ''
         for f in feature[:4]:
@@ -100,9 +101,12 @@ def map(im_path, flag):
             s += ","
         for item in feature[4]:
             s += str(item) + " "
-        return database.querydb(db, s)
-    else:
-        return '阿'
+        if flag == 1:
+            return database.querydb(db, s, 1)
+        else:
+            return database.querydb(db, s, 0)
+    except:
+        return '!'
 
 
 if __name__ == '__main__':

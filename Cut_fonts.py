@@ -11,7 +11,7 @@ import os
 class Cutfonts:
     def __init__(self, pic_path):
         self.pic_dir = pic_path + "/"
-        self.result_dir = "./result/"
+        self.result_dir = "./r/"
 
     def Qushuiyin(self, grayimage, height, width):
         ret, thresh = cv2.threshold(grayimage, 220, 255, cv2.THRESH_BINARY_INV)

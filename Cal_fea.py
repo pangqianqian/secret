@@ -26,6 +26,7 @@ class Calfea:
             # name, ext = os.path.splitext(pic_path)
             # name = os.path.basename(name)
             name = fpath + ffpath + os.path.splitext(picture)[0]
+            name = pic_path
             self.write_to_txt(name, HA, VA, HA_H, VA_H, cor_feature)
 
     def caculate(self, im_path):
@@ -147,7 +148,7 @@ class Calfea:
                 tag = 1
         return k
 
-    def caculate_three_lines(self,lines):
+    def caculate_three_lines(self, lines):
         # 调用计算单行像素计算方法
         c1 = self.caculate_line(lines[0])
         c2 = self.caculate_line(lines[1])
@@ -213,3 +214,5 @@ class Calfea:
         for pic_dir in os.listdir(self.calpath):
             for sub_pic_dir in os.listdir(self.calpath + pic_dir + "/"):
                 self.caculate_all(pic_dir, sub_pic_dir, self.calpath + pic_dir + "/" + sub_pic_dir + "/")
+
+
