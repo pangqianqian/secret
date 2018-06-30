@@ -5,11 +5,13 @@
 
 import os
 import xlwt
-import pytesseract
-from PIL import Image
 import cv2
 from Cal_fea import Calfea
 from Database import Database
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 pic_dir = "./result"
 save_dir = './result.xls'
@@ -33,6 +35,7 @@ def main():
     # 照片
     picture = os.listdir(pic_dir)
     row = 1  # 行
+
     for subpicture in picture:  # 依次对每张照片进行处理
         str1 = os.path.join(pic_dir, subpicture)  # 文件名
         file = os.listdir(str1)  # file 为name或num
@@ -47,22 +50,45 @@ def main():
             l = dict()
             if subfile == 'name':  # 企业名称
                 col = 0  # 列
+                k1 = k2 = 0
+                flag = True
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
-                    word = map(str3, 0)
-                    print word
+                    im = cv2.imread(str3)
                     pos = subcell.split('.')[0]
+                    if im.shape[0] != 64 and flag == True:
+                        word = "!"
+                        k1 = int(pos) - 1
+                        flag = False
+                    elif im.shape[0] != 64 and flag == False:
+                        word = "!"
+                        k2 = int(pos) - 1
+                    else:
+                        word = map(str3, 0)
                     dic = {int(pos) - 1: word}
                     l.update(dic)
+                if k2 != 0:
+                    if k1 < k2:
+                        dic1 = {k1: "("}
+                        dic2 = {k2: ")"}
+                    else:
+                        dic1 = {k2: "("}
+                        dic2 = {k1: ")"}
+                    l.update(dic1)
+                    l.update(dic2)
+                l.update({num - 1: "司"})
+                l.update({num - 2: "公"})
+                l.update({num - 3: "限"})
+                l.update({num - 4: "有"})
             else:  # 企业数字
                 col = 1  # 列
                 for subcell in cell:
                     str3 = os.path.join(str2, subcell)
                     word = map(str3, 1)
-                    print word
                     pos = subcell.split('.')[0]
                     dic = {int(pos) - 1: word}
                     l.update(dic)
+
             # 将字符串汇总
             words = ''
             for i in range(num):
@@ -81,17 +107,7 @@ def map(im_path, flag):
     flag=1,匹配数字和英文
     :param im:
     :return:
-    # '''
-    # if flag == 1:
-    #     return '1'
-    # else:
-    #     im = cv2.imread(im_path)
-    #     if len(im[0]) != 64:
-    #         return '('
-    #     else:
-    #         img = Image.open(im_path)
-    #         data = pytesseract.image_to_string(img, lang='chi_sim')
-    #         return data
+    '''
     try:
         feature = calfea.caculate(im_path)
         s = ''

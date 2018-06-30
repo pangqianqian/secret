@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import mysql.connector
-import cmath
 import numpy
 
 
@@ -14,76 +13,6 @@ class Database:
                                      passwd="Ruanjianbei1", database="Features", charset="utf8")
         print '连接上了!'
         return db
-
-    def createtable(self, db):
-        # 使用cursor()方法获取操作游标
-        cursor = db.cursor()
-
-        # 如果存在表Sutdent先删除
-        # cursor.execute("DROP TABLE IF EXISTS fonts")
-        # cursor.execute("DROP TABLE IF EXISTS num_fonts")
-
-        # sql_fonts = '''CREATE TABLE fonts (
-        #         char_chi VARCHAR(5) NOT NULL,
-        #         feature1 VARCHAR(40) NOT NULL,
-        #         feature2 VARCHAR(20) NOT NULL,
-        #         feature3 VARCHAR(20) NOT NULL,
-        #         feature4 VARCHAR(20) NOT NULL,
-        #         feature5 VARCHAR(20) NOT NULL)DEFAULT CHARSET=utf8'''
-
-        sql_numfonts = ''' CREATE TABLE num_fonts (
-                    id VARCHAR(8) NOT NULL,
-                    font VARCHAR (10) NOT NULL,
-                    feature1 VARCHAR(40) NOT NULL,
-                    feature2 VARCHAR(10) NOT NULL,
-                    feature3 VARCHAR(10) NOT NULL,
-                    feature4 VARCHAR(10) NOT NULL,
-                    feature5 VARCHAR(10) NOT NULL)'''
-
-        # 创建Sutdent表
-        # cursor.execute(sql_fonts)
-        cursor.execute(sql_numfonts)
-
-        print '建表成功！'
-
-    def insertdb(self, db):
-        # 使用cursor()方法获取操作游标
-        cursor = db.cursor()
-
-        # 　打开文件
-        f = open('num_value.txt', 'r')
-        i = 0
-        while True:
-            line = f.readline()
-            if line == '':
-                break
-            else:
-                # 处理每行
-                line = line.strip('\n')
-                line = line.split(',')
-                char_chi = line[0]
-                feature1 = line[1].strip(' ') + ',' + line[2].strip(' ') + ',' + line[3].strip(' ') + ',' + line[
-                    4].strip(' ')
-                l = line[5].split(' ')
-                feature2 = l[0]
-                feature3 = l[1]
-                feature4 = l[2]
-                feature5 = l[3]
-                print feature5
-
-                try:
-                    # 执行sql语句
-                    cursor.execute("INSERT INTO num_fonts VALUES(%s,%s,%s,%s,%s,%s,%s)",
-                                   [str(i), char_chi, feature1, feature2, feature3, feature4, feature5])
-                except:
-                    # Rollback in case there is any error
-                    print '插入数据失败!'
-                i += 1
-
-        f.close()
-        cursor.close()
-        db.commit()
-        print '插入数据成功！'
 
     def querydb(self, db, feature, choose):
         # choose=0,企业名称部分；choose=1,注册号部分
@@ -104,7 +33,7 @@ class Database:
                 s = "SELECT * from eng_fonts"
                 return self.search(db, feature, sql, s)
         else:
-            sql = "SELECT * from chi_fonts WHERE feature1='%s'"
+            sql = "SELECT * from chi_common WHERE feature1='%s'"
             s = "SELECT * from chi_common"
             return self.search(db, feature, sql, s)
 
@@ -122,7 +51,7 @@ class Database:
             if len(results) == 1:  # 单一匹配
                 return results[0][1]
             elif len(results) > 1:  # 匹配出来多个
-               # print self.Euclid_dis(fs[4], results)
+                # print self.Euclid_dis(fs[4], results)
                 return self.Euclid_dis(fs[4], results)
             else:  # 匹配不出来的情况，用模糊匹配
                 # print self.Fuzzy_match(db, s, feature)
@@ -145,6 +74,7 @@ class Database:
             x4 = i[6]
             dis = numpy.sqrt((f2 - x1) ** 2 + (f3 - x2) ** 2 + (f4 - x3) ** 2 + (f5 - x4) ** 2)
             if dis < mini:
+                mini = dis
                 font = i[1]
         return font
 
@@ -164,7 +94,7 @@ class Database:
                 for j in range(len(f1)):
                     if f1[j] != i[2][j]:
                         k += 1
-                if k <= 2:  # 两个以内的被匹配出来
+                if k <= 3:  # 两个以内的被匹配出来
                     l.append(i)
             if len(l) == 1:
                 return l[0][1]
@@ -179,9 +109,3 @@ class Database:
         db.close()
 
 
-if __name__ == '__main__':
-    db = Database()
-    d = db.connectdb()
-    db.createtable(d)
-    db.insertdb(d)
-    db.closedb(d)

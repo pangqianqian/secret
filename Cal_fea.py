@@ -176,9 +176,42 @@ class Calfea:
 
     def write_to_txt(self, ch_name, HA, VA, HA_H, VA_H, cor_feature):
         try:
+            # fp = open("feature.txt", "a+")
+            # fp.write(ch_name)
+            # fp.write(";")
+            #
+            # # for item in HA:
+            # for i in range(len(HA) - 1):
+            #     fp.write(str(HA[i]) + " ")
+            # fp.write(str(HA[i + 1]))
+            # fp.write(",")
+            #
+            # for i in range(len(VA) - 1):
+            #     fp.write(str(VA[i]) + " ")
+            # fp.write(str(VA[i + 1]))
+            # fp.write(",")
+            #
+            # for i in range(len(HA_H) - 1):
+            #     fp.write(str(HA_H[i]) + " ")
+            # fp.write(str(HA_H[i + 1]))
+            # fp.write(",")
+            #
+            # for i in range(len(VA_H) - 1):
+            #     fp.write(str(VA_H[i]) + " ")
+            # fp.write(str(VA_H[i + 1]))
+            # fp.write(",")
+            #
+            # for item in cor_feature:
+            #     fp.write(str(item) + ";")
+            #
+            # fp.write("\n")
+            # fp.close()
+
+            name=ch_name.split('/')[1]
+            name=name.split('.')[0]
+
             fp = open("feature.txt", "a+")
-            fp.write(ch_name)
-            fp.write(";")
+            fp.write("UPDATE chi_fonts set feature1='")
 
             # for item in HA:
             for i in range(len(HA) - 1):
@@ -199,11 +232,20 @@ class Calfea:
             for i in range(len(VA_H) - 1):
                 fp.write(str(VA_H[i]) + " ")
             fp.write(str(VA_H[i + 1]))
-            fp.write(",")
+            fp.write("',")
 
-            for item in cor_feature:
-                fp.write(str(item) + ";")
+            for i in range(len(cor_feature)):
+                if i==0:
+                    fp.write("feature2='"+str(cor_feature[i]) + "',")
+                elif i==1:
+                    fp.write("feature3='" + str(cor_feature[i]) + "',")
+                elif i==2:
+                    fp.write("feature4='" + str(cor_feature[i]) + "',")
+                else:
+                    fp.write("feature5='" + str(cor_feature[i])+"'")
 
+            fp.write(" WHERE font=")
+            fp.write("'"+str(name)+"'"+";")
             fp.write("\n")
             fp.close()
 
@@ -216,3 +258,6 @@ class Calfea:
                 self.caculate_all(pic_dir, sub_pic_dir, self.calpath + pic_dir + "/" + sub_pic_dir + "/")
 
 
+if __name__ == '__main__':
+    c=Calfea()
+    c.caculate_all('1','1','chi')
